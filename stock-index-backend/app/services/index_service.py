@@ -1,10 +1,8 @@
-import pandas as pd
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 from typing import List, Dict, Any, Tuple
 from app.core.database import db_manager
 from app.services.data_service import data_service
 from app.utils.cache import cache_manager
-import numpy as np
 from app.strategies.weighting import WeightingStrategy, EqualWeightStrategy
 
 class IndexService:
@@ -13,9 +11,11 @@ class IndexService:
         self.strategy = weighting_strategy
     
     def build_index(self, start_date: str, end_date: str = None) -> Dict[str, Any]:
-        """Build equal-weighted index for date range"""
+        """Build index as per given strategy for date range"""
+        start = datetime.strptime(start_date, "%Y-%m-%d").date()
         if end_date is None:
-            end_date = start_date
+            end = start + timedelta(days=1)
+            end_date = end.isoformat()
         
         cache_key = f"index_build_{start_date}_{end_date}"
         cached_result = cache_manager.get(cache_key)
@@ -238,18 +238,27 @@ class IndexService:
     
     def _store_composition(self, records: List[Tuple]):
         """Store index composition"""
-        db_manager.execute_insert(
-            """INSERT INTO index_compositions 
-                (date, symbol, weight, market_cap, rank) 
-                VALUES (?, ?, ?, ?, ?)""",
+        db_manager.execute_insert("""
+            INSERT INTO index_compositions 
+            (date, symbol, weight, market_cap, rank) 
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(date, symbol) DO UPDATE SET
+                weight = excluded.weight,
+                market_cap = excluded.market_cap,
+                rank = excluded.rank""",
             records
         )
     
     def _store_performance(self, record: Dict[str, Any]):
         """Store index performance"""
-        db_manager.execute_insert(
-            """INSERT INTO index_performance (date, daily_return, cumulative_return, index_value)
-                VALUES (?, ?, ?, ?)""",
+        db_manager.execute_insert("""
+            INSERT INTO index_performance 
+            (date, daily_return, cumulative_return, index_value)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET
+                daily_return = excluded.daily_return,
+                cumulative_return = excluded.cumulative_return,
+                index_value = excluded.index_value""",
         [(record['date'], record['daily_return'], 
         record['cumulative_return'], record['index_value'])]
     )

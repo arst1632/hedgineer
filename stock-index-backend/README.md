@@ -35,7 +35,7 @@ A FastAPI-based backend service that tracks and manages a custom equal-weighted 
    docker-compose up -d
    ```
 
-3. **Run data acquisition**:
+3. **Run data acquisition ( OPTIONAL Docker shell auto runs it in start )**:
    ```bash
    docker-compose exec stock-index-api python data_job/fetch_data.py
    ```

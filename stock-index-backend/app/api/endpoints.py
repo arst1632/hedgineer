@@ -18,14 +18,14 @@ router = APIRouter()
 
 @router.post("/build-index", response_model=IndexBuildResponse)
 async def build_index(request: IndexBuildRequest):
-    """Build equal-weighted index for given date range"""
+    """Build index for given date range"""
     try:
         logger.info(f"Received build-index request: start={request.start_date}, end={request.end_date}")
         result = index_service.build_index(
             start_date=request.start_date,
             end_date=request.end_date or request.start_date
         )
-        logger.info(f"build_index result: {result}")
+        logger.debug(f"build_index result: {result}")
 
         if "error" in result:
             raise HTTPException(status_code=400, detail=result["error"])

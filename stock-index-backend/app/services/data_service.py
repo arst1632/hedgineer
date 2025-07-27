@@ -36,7 +36,7 @@ class DataService:
         
         for symbol in symbols:
             try:
-                logger.info(f"Fetching {symbol}...")
+                logger.info(f"Fetching Data for {symbol}...")
                 ticker = yf.Ticker(symbol)
                 hist = ticker.history(period=period)
                 info = ticker.info
@@ -92,7 +92,13 @@ class DataService:
                 INSERT INTO daily_data 
                 (symbol, date, open_price, high_price, low_price, close_price, volume, market_cap) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
+                ON CONFLICT(symbol, date) DO UPDATE SET
+                    open_price = excluded.open_price,
+                    high_price = excluded.high_price,
+                    low_price = excluded.low_price,
+                    close_price = excluded.close_price,
+                    volume = excluded.volume,
+                    market_cap = excluded.market_cap""",
                 daily_records
             )
     
