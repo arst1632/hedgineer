@@ -1,0 +1,71 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: stock-index-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  stock-index-api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: stock-index-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=/app/data/stocks.db
+      - CACHE_TTL=3600
+    volumes:
+      # Persistent volume for database
+      - stock_data:/app/data
+      # Mount source code for development (remove in production)
+      - .:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-h", "redis", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - backend
+
+  # Optional: Data fetcher as a separate service
+  data-fetcher:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: stock-data-fetcher
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=/app/data/stocks.db
+    volumes:
+      - stock_data:/app/data
+      - .:/app
+    command: python data_job/fetch_data.py
+    profiles: ["data-fetch"]  # Only run when explicitly requested
+
+volumes:
+  redis_data:
+    driver: local
+  stock_data:
+    driver: local
+
+networks:
+  backend:
