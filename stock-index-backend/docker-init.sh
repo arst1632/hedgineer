@@ -3,14 +3,6 @@
 # Docker initialization script
 echo "Initializing Stock Index Backend..."
 
-# Wait for Redis to be ready
-# echo "Waiting for Redis to be ready..."
-# while ! redis-cli -h redis ping > /dev/null 2>&1; do
-#     echo "Redis is not ready, waiting..."
-#     sleep 2
-# done
-echo "Redis is ready!"
-
 # Check if database exists and has data
 if [ ! -f "/app/data/stocks.db" ] || [ ! -s "/app/data/stocks.db" ]; then
     echo "Database not found or empty. Initializing database..."

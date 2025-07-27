@@ -1,11 +1,11 @@
 import yfinance as yf
 import pandas as pd
-from datetime import datetime, timedelta
 from typing import List, Dict, Any
 from app.core.database import db_manager
 import requests
 import time
 import logging
+from bs4 import BeautifulSoup
 
 # Configure logging
 logging.basicConfig(
@@ -21,19 +21,14 @@ class DataService:
     def _get_sp500_symbols(self) -> List[str]:
         """Get S&P 500 symbols (we'll use top 150 to ensure we can get top 100)"""
         # This is a simplified list - in production, we'll fetch from a reliable source
-        symbols = [
-            'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'BRK-B', 'UNH', 'XOM',
-            'JNJ', 'JPM', 'V', 'PG', 'MA', 'CVX', 'HD', 'PFE', 'ABBV', 'BAC',
-            'KO', 'AVGO', 'PEP', 'TMO', 'COST', 'MRK', 'WMT', 'CSCO', 'DHR', 'VZ',
-            'ABT', 'ACN', 'LIN', 'ADBE', 'TXN', 'NKE', 'BMY', 'QCOM', 'PM', 'HON',
-            'RTX', 'T', 'UPS', 'SBUX', 'LOW', 'AMD', 'INTU', 'IBM', 'CAT', 'GS',
-            'SPGI', 'DE', 'BKNG', 'AXP', 'BLK', 'ELV', 'GE', 'MDT', 'ADI', 'TJX',
-            'GILD', 'ADP', 'CVS', 'SYK', 'MMC', 'VRTX', 'LRCX', 'C', 'SCHW', 'MO',
-            'ZTS', 'FIS', 'CB', 'SO', 'DUK', 'BSX', 'ITW', 'EOG', 'PYPL', 'CL',
-            'NOC', 'MMM', 'APD', 'ICE', 'PLD', 'SHW', 'FCX', 'GD', 'WM', 'USB',
-            'NSC', 'COP', 'MCO', 'EMR', 'AON', 'CSX', 'KLAC', 'HUM', 'ECL', 'FDX'
-        ]
-        return symbols[:100]  # Take first 100 for this example
+        url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+        response = requests.get(url)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            table = soup.find("table", {"class": "wikitable"})
+            df = pd.read_html(str(table))[0]
+            return df["Symbol"].tolist()[:150]# Take first 150 for this example
+        return []  
     
     def fetch_historical_data(self, symbols: List[str], period: str = "2mo") -> Dict[str, pd.DataFrame]:
         """Fetch historical data for given symbols"""
@@ -52,7 +47,7 @@ class DataService:
                     hist['MarketCap'] = hist['Close'] * info.get('sharesOutstanding', 0)
                     data[symbol] = hist
                     
-                time.sleep(1.5)  # Rate limiting
+                time.sleep(1)  # Rate limiting
                 
             except Exception as e:
                 print(f"Error fetching data for {symbol}: {e}")

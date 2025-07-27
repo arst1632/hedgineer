@@ -112,7 +112,7 @@ async def get_composition_changes(
         
         return [
             CompositionChange(
-                date=record['date'],
+                date=record['date'].date().isoformat() if hasattr(record['date'], 'date') else str(record['date']),
                 entered=record['entered'],
                 exited=record['exited'],
                 total_changes=record['total_changes']
