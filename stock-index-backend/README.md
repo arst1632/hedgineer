@@ -26,7 +26,7 @@ A FastAPI-based backend service that tracks and manages a custom equal-weighted 
 
 1. **Clone and setup**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/arst1632/hedgineer.git
    cd stock-index-backend
    ```
 
