@@ -71,41 +71,41 @@ A FastAPI-based backend service that tracks and manages a custom equal-weighted 
 ### 1. Build Index
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/build-index" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "start_date": "2024-01-15",
-    "end_date": "2024-01-20"
-  }'
+curl -X POST "http://localhost:8000/api/v1/build-index" \
+   -H "Content-Type: application/json" \
+   -d '{
+      "start_date": "2025-06-25", 
+      "end_date": "2025-07-25"
+   }'
 ```
 
 ### 2. Get Index Performance
 
 ```bash
-curl "http://localhost:8000/api/v1/index-performance?start_date=2024-01-15&end_date=2024-01-20"
+curl "http://localhost:8000/api/v1/index-performance?start_date=2025-06-25&end_date=2025-07-25"
 ```
 
 ### 3. Get Index Composition
 
 ```bash
-curl "http://localhost:8000/api/v1/index-composition?date=2024-01-15"
+curl "http://localhost:8000/api/v1/index-composition?date=2025-07-01"
 ```
 
 ### 4. Get Composition Changes
 
 ```bash
-curl "http://localhost:8000/api/v1/composition-changes?start_date=2024-01-15&end_date=2024-01-20"
+curl "http://localhost:8000/api/v1/composition-changes?start_date=2025-06-25&end_date=2025-07-25"
 ```
 
 ### 5. Export Data to Excel
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/export-data" \\
-  -H "Content-Type: application/json" \\
+curl -X POST "http://localhost:8000/api/v1/export-data" \
+  -H "Content-Type: application/json" \
   -d '{
-    "start_date": "2024-01-15",
-    "end_date": "2024-01-20"
-  }' \\
+    "start_date": "2025-06-25",
+    "end_date": "2025-07-25"
+  }' \
   --output index_data.xlsx
 ```
 
