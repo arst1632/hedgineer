@@ -4,7 +4,7 @@ A FastAPI-based backend service that tracks and manages a custom equal-weighted 
 
 ## Features
 
-- **Dynamic Index Construction**: Build equal-weighted indices for any date or date range
+- **Dynamic Index Construction**: Build equal-weighted indices for any date range using a strategy-based design, allowing easy extension to other weighting methods.
 - **Historical Performance Tracking**: Retrieve daily and cumulative returns
 - **Composition Management**: Track composition changes over time
 - **Data Export**: Export all data to well-formatted Excel files
@@ -220,7 +220,7 @@ Create a `.env` file:
 DATABASE_URL=data/stocks.db
 REDIS_URL=redis://localhost:6379
 CACHE_TTL=3600
-ALPHA_VANTAGE_API_KEY=your_api_key_here
+ALPHA_VANTAGE_API_KEY=6PJVILAR0HQRSNRL
 ```
 
 ## Contributing
